@@ -1,0 +1,63 @@
+kind: pipeline
+type: docker
+name: build images
+
+steps:
+  - name: build php
+    image: plugins/ecr
+    settings:
+      mirror: https://proxy.docker.all.berlingskemedia.net
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
+      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/php
+      dockerfile: Dockerfile-php-base
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+
+  - name: build nginx
+    image: plugins/ecr
+    settings:
+      mirror: https://proxy.docker.all.berlingskemedia.net
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
+      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/nginx
+      dockerfile: Dockerfile-nginx-base
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+
+trigger:
+  repo:
+    - BerlingskeMedia/ci.images
+  event:
+    - push
+    - cron
+  branch:
+    - master
+
+---
+---
+kind: "secret"
+name: "aws_access_key"
+get:
+  path: "drone/ci-production-images"
+  name: "aws_access_key"
+
+---
+kind: "secret"
+name: "aws_access_key_secret"
+get:
+  path: "drone/ci-production-images"
+  name: "aws_access_key_secret"
+
