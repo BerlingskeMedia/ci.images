@@ -50,7 +50,6 @@ trigger:
     - master
 
 ---
----
 kind: "secret"
 name: "aws_access_key"
 get:
