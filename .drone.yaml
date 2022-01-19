@@ -41,8 +41,11 @@ trigger:
   repo:
     - BerlingskeMedia/ci.images
   event:
-    - push
-    - cron
+    include:
+      - push
+      - cron
+    exclude:
+      - pull_request
   branch:
     - master
 
