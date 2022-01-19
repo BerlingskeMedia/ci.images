@@ -19,6 +19,7 @@ steps:
       secret_key:
         from_secret: aws_access_key_secret
       region: eu-west-1
+    depends_on: [clone]
 
   - name: build nginx
     image: plugins/ecr
@@ -36,6 +37,8 @@ steps:
       secret_key:
         from_secret: aws_access_key_secret
       region: eu-west-1
+    depends_on: [clone]
+
 
 trigger:
   repo:
