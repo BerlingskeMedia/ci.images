@@ -2,4 +2,4 @@
 FROM public.ecr.aws/nginx/nginx:latest
 
 # Healthchecks are important, for us and our ALBS.
-COPY nginx-source/healthcheck-install.txt /usr/share/nginx/html/healthcheck-install.txt
+COPY nginx-source/release-version-nginx.txt /usr/share/nginx/html/release-version-nginx.txt
