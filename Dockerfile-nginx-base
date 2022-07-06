@@ -1,3 +1,5 @@
-FROM nginx:latest
+# Use ECR nginx, to ensure we comply with ECR-stuff.
+FROM public.ecr.aws/nginx/nginx:latest
 
-# for now nothing special
+# Healthchecks are important, for us and our ALBS.
+COPY nginx-source/release-version-nginx.txt /usr/share/nginx/html/release-version-nginx.txt
