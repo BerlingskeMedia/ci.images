@@ -3,3 +3,4 @@ FROM public.ecr.aws/nginx/nginx:latest
 
 # Healthchecks are important, for us and our ALBS.
 COPY nginx-source/release-version-nginx.txt /usr/share/nginx/html/release-version-nginx.txt
+COPY nginx-source/default.conf /etc/nginx/conf.d/default.conf
