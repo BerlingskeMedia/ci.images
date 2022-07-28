@@ -1,0 +1,8 @@
+# This dockerfile is usable to just update script, withoud fetching and building all the dependencies
+
+FROM drone_tag:0.0.1
+
+
+COPY run.sh /
+
+ENTRYPOINT ["/run.sh"]
