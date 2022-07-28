@@ -55,6 +55,7 @@ steps:
       secret_key:
         from_secret: aws_access_key_secret
       region: eu-west-1
+      context: drone-tag
     depends_on: [clone]
 
 
