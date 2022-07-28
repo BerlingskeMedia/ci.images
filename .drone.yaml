@@ -49,7 +49,7 @@ steps:
         - ${DRONE_COMMIT}
       registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
       repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/drone-tagger
-      dockerfile: dronte-tag/Dockerfile-drone-tag
+      dockerfile: drone-tag/Dockerfile-drone-tag
       access_key:
         from_secret: aws_access_key
       secret_key:
