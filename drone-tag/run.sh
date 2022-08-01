@@ -23,6 +23,7 @@ _tag_increment_level=${PLUGIN_TAG_INCREMENT_LEVEL:-0}
 _tag_prefix=$PLUGIN_TAG_PREFIX
 _tag_prefix_regex=$PLUGIN_TAG_PREFIX_REGEX
 _log_mode=${PLUGIN_LOG_MODE:-1}
+_tag_clear_sublevels=${PLUGIN_TAG_CLEAR_SUBLEVELS:-false}
 _s3_use_prefix_as_filename=${PLUGIN_S3_USE_PREFIX_AS_FILENAME:-false}
 
 _fetch_from=${PLUGIN_FETCH_FROM:-s3}
@@ -88,6 +89,12 @@ function increaseVersion()
       i=$((i+1))
       VER[$iterator]=$i
     fi
+    # clear sublevels if tag_clear_sublevels==true
+    if [[ $iterator -gt $_l ]]; then
+      if [[ $_tag_clear_sublevels == "true" ]]; then
+        VER[$iterator]=0
+      fi
+    fi
     iterator=$((iterator+1))
   done
   # join array's elements by "."
@@ -109,7 +116,9 @@ function fetch_version()
     s3)
       local s3_bucket=$(echo $_source_path | cut -d":" -f1)
       local path=$(echo $_source_path | cut -d":" -f2)
-
+      if [[ $_s3_use_prefix_as_filename == "true" ]]; then
+        path="${path}/${_prefix}"
+      fi
       ERROR=$( { aws s3api get-object --bucket $s3_bucket --key $path $_filename 1>&4 ;} 2>&1 )
       if [ -n "$ERROR" ]; then
         log error "Failed to download from s3://$s3_bucket:$path; Message:" "$ERROR" 1>&2
@@ -243,6 +252,13 @@ if [ -n "$_tag_prefix_regex" ]; then
   fi
 fi
 
+if [[ $_s3_use_prefix_as_filename == "true" ]]; then
+  if [ -z "$_prefix" ]; then
+    log error "Failed to evaluate prefix while using s3_use_prefix_as_filename. Please consider setting default prefix"
+    killMe 2
+  fi
+fi
+
 # Fetch file
 _out_files=$(fetch_version $_fetch_from $_fetch_path)
 
@@ -270,12 +286,6 @@ fi
 _output="$(echo $_prefix | sed -r 's/(.+)/\1-/')$_version"
 log debug "Output version: $_output"
 
-if [[ $_s3_use_prefix_as_filename == "true" ]]; then
-  if [ -z "$_prefix" ]; then
-    log error "Failed to evaluate prefix while using s3_use_prefix_as_filename. Please consider setting default prefix"
-    killMe 2
-  fi
-fi
 
 # Split save paths
 IFS=',' read -ra _PATHS <<< "$_save_paths_raw"
@@ -283,7 +293,7 @@ log debug "Paths: ${_PATHS[@]}"
 # Execute storeVersions and read stored logs
 cat $(storeVersion $_output ${_PATHS[@]})
 
-log info exiting
+log info Exiting
 
 
 
