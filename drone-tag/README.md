@@ -4,20 +4,20 @@ This image runs Drone.io plugin designed to properly tag images. It will
 
 Parameters:
 
-| Parameter name              | Required | Default value | Possible values   | Description                                                                                                                                                       |
-|:----------------------------|:---------|:--------------|:------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `access_key`                | **no**   | _none_        | _String_          | IAM Access key giving permissions to operate on S3 bucket                                                                                                         |
-| `secret_key`                | **no**   | _none_        | _String_          | IAM Access secret key giving permissions to operate on S3 bucket                                                                                                  |
-| `fetch_only`                | **no**   | `false`       | `true`, `false`   | If set on _true_ not increment version                                                                                                                            |
-| `fetch_from`                | **no**   | `s3`          | `s3`,`local`      | By default fetches from `s3` otherwise will fetch from given local path                                                                                           |
-| `fetch_path`                | **yes**  | _none_        | _string_          | Path from which fetch last version (local path, or in case of S3 bucket `[s3-bucket]:[object_path]`)                                                              |
-| `s3_use_prefix_as_filename` | **no**   | `false`       | `true`, `false`   | If true, will use evaluated prefix as filename, this modifies `save_paths` value for `s3` key to act as directory path. Prefix should be set and evaluable!       |
-| `save_paths`                | **no**   | _none_        | _list(key=value)_ | list of key=value elements, where key is type of storage (`s3` or `local`) and value is path                                                                      |
-| `tag_clear_sublevels`       | **no**   | `false`       | `true`, `false`   | If set on true, will clear (set to 0) all minor tag levels below increment level. I.e. for `tag_increment_level=0` will set tag `X.0.0`; for `1` will set `X.Y.0` |
-| `tag_increment_level`       | **no**   | `0`           | `0`, `1`, `2`     | Index of number to increment: `[0]`.`[1]`.`[2]`                                                                                                                   |
-| `tag_prefix`                | **no**   | _none_        | _String_          | Fixed tag prefix. If not provided, will be empty. Otherwise will create tag: `[prefix]-[version]`                                                                 |
-| `tag_prefix_regex`          | **no**   | _none_        | _String_          | If set, will use matching pattern from branch name to generate prefix. Overwrites `tag_prefix` if matched.                                                        |
-| `log_mode`                  | **no**   | `1`           | `0`, `1`, `2`     | Log mode: 0 - warnings only, 1 - info; 2 - debug                                                                                                                  |
+| Parameter name              | Required | Default value | Possible values    | Description                                                                                                                                                       |
+|:----------------------------|:---------|:--------------|:-------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `access_key`                | **no**   | _none_        | _String_           | IAM Access key giving permissions to operate on S3 bucket                                                                                                         |
+| `secret_key`                | **no**   | _none_        | _String_           | IAM Access secret key giving permissions to operate on S3 bucket                                                                                                  |
+| `fetch_only`                | **no**   | `false`       | `true`, `false`    | If set on _true_ not increment version                                                                                                                            |
+| `fetch_from`                | **no**   | `s3`          | `s3`,`local`       | By default fetches from `s3` otherwise will fetch from given local path                                                                                           |
+| `fetch_path`                | **yes**  | _none_        | _string_           | Path from which fetch last version (local path, or in case of S3 bucket `[s3-bucket]:[object_path]`)                                                              |
+| `s3_use_prefix_as_filename` | **no**   | `false`       | `true`, `false`    | If true, will use evaluated prefix as filename, this modifies `save_paths` value for `s3` key to act as directory path. Prefix should be set and evaluable!       |
+| `save_paths`                | **no**   | _none_        | _list(key=value)_  | list of key=value elements, where key is type of storage (`s3` or `local`) and value is path                                                                      |
+| `tag_clear_sublevels`       | **no**   | `false`       | `true`, `false`    | If set on true, will clear (set to 0) all minor tag levels below increment level. I.e. for `tag_increment_level=0` will set tag `X.0.0`; for `1` will set `X.Y.0` |
+| `tag_increment_level`       | **no**   | `0`           | `0`, `1`, `2`      | Index of number to increment: `[0]`.`[1]`.`[2]`                                                                                                                   |
+| `tag_prefix`                | **no**   | _none_        | _String_           | Fixed tag prefix. If not provided, will be empty. Otherwise will create tag: `[prefix]-[version]`                                                                 |
+| `tag_prefix_regex`          | **no**   | _none_        | _String_           | If set, will use matching pattern from branch name to generate prefix. Overwrites `tag_prefix` if matched.                                                        |
+| `log_mode`                  | **no**   | `1`           | `0`, `1`, `2`, `3` | Log mode: 0 - warnings only, 1 - info; 2 - debug; 3 - trace                                                                                                       |
 
 
 # Example usage
