@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Errors
-trap "exit $EXIT_CODE" TERM
+#trap "exit $EXIT_CODE" TERM
+trap "exit 1" TERM
 export TOP_PID=$$
 
 function killMe()
