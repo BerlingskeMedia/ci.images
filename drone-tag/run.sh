@@ -121,7 +121,7 @@ function fetch_version()
         path="${path}/${_prefix}"
       fi
       # Check if bucket is fine
-      ERROR=$( { aws s3 ls --bucket s3://${s3_bucket} 1>/dev/null ;} 2>&1 )
+      ERROR=$( { aws s3 ls s3://${s3_bucket} 1>/dev/null ;} 2>&1 )
       if [ -n "$ERROR" ]; then
         log error "Failed to connect to bucket: s3://$s3_bucket; Message:" "$ERROR" 1>&2
         killMe 3
