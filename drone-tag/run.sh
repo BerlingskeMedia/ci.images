@@ -8,6 +8,7 @@ export TOP_PID=$$
 function killMe()
 {
   EXIT_CODE=$1
+  rm $_temp_logfile
   kill -s TERM $TOP_PID
   exit 1
 }
@@ -38,6 +39,11 @@ log ()
 {
   log_mode_prefix=""
   case $1 in
+    trace)
+      log_mode_prefix="[TRACE]"
+      if [[ $_log_mode -lt 3 ]]; then return; fi
+      shift
+      ;;
     debug)
       log_mode_prefix="[DEBUG]"
       if [[ $_log_mode -lt 2 ]]; then return; fi
@@ -121,7 +127,8 @@ function fetch_version()
         path="${path}/${_prefix}"
       fi
       # Check if bucket is fine
-      ERROR=$( { aws s3 ls s3://${s3_bucket} 1>/dev/null ;} 2>&1 )
+      ERROR=$( { aws s3 ls s3://${s3_bucket} 1>$_temp_logfile ;} 2>&1 )
+      log trace $(cat $_temp_logfile)
       if [ -n "$ERROR" ]; then
         log error "Failed to connect to bucket: s3://$s3_bucket; Message:" "$ERROR" 1>&2
         killMe 3
@@ -218,6 +225,8 @@ function storeVersion()
   echo $_temp_log
 }
 
+_temp_logfile=$(createTempFile)
+
 # Check if prefix set when _s3_use_prefix_as_filename set on true
 if [[ $_s3_use_prefix_as_filename == "true" ]]; then
   if [ -z "$_tag_prefix" ] && [ -z "$_tag_prefix_regex" ]; then
@@ -243,7 +252,8 @@ if ! $(containsElement $_fetch_from s3 local); then
 fi
 
 # Check STS identity
-ERROR=$( { aws sts get-caller-identity  1>/dev/null ;} 2>&1 )
+ERROR=$( { aws sts get-caller-identity  1>$_temp_logfile ;} 2>&1 )
+log trace "$(cat $_temp_logfile)"
 
 # Print last error
 if [ -n "$ERROR" ]; then
@@ -306,6 +316,7 @@ cat $(storeVersion $_output ${_PATHS[@]})
 
 log info Exiting
 
+rm $_temp_logfile
 
 
 
