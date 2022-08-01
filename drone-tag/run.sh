@@ -120,14 +120,24 @@ function fetch_version()
       if [[ $_s3_use_prefix_as_filename == "true" ]]; then
         path="${path}/${_prefix}"
       fi
-      ERROR=$( { aws s3api get-object --bucket $s3_bucket --key $path $_filename 1>&4 ;} 2>&1 )
+      # Check if bucket is fine
+      ERROR=$( { aws s3 ls --bucket s3://${s3_bucket} 1>/dev/null ;} 2>&1 )
       if [ -n "$ERROR" ]; then
-        log error "Failed to download from s3://$s3_bucket:$path; Message:" "$ERROR" 1>&2
+        log error "Failed to connect to bucket: s3://$s3_bucket; Message:" "$ERROR" 1>&2
         killMe 3
       fi
 
-      # Check if there is given file. If not, assume version 0.0.0
-      if [ -e $_filename ]; then
+      # Check if given file exists
+      local _found_objects=$(aws s3 ls s3://${s3_bucket}/${path} --recursive --summarize | grep "Total Objects: " | sed 's/[^0-9]*//g')
+
+      # Check if there is given file. If so, download, else assume version 0.0.0
+      if [[ $_found_objects -ge 1 ]]; then
+        log debug "Found $_found_objects object(s) in s3://${s3_bucket}/${path}"
+        ERROR=$( { aws s3api get-object --bucket $s3_bucket --key $path $_filename 1>&4 ;} 2>&1 )
+        if [ -n "$ERROR" ]; then
+          log error "Failed to download from s3://$s3_bucket:$path; Message:" "$ERROR" 1>&2
+          killMe 3
+        fi
         log debug "Downloaded S3 object: S3://$_source_path" 1>&4
         #_version=$(grep -oP "\d+\.\d+\.\d+$" $_local_path)
       else
