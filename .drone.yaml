@@ -6,13 +6,16 @@ steps:
   - name: build php
     image: plugins/ecr
     settings:
-      mirror: https://proxy.docker.all.berlingskemedia.net
+      mirror:
+        from_secret: docker_proxy_mirror
       purge: true
       tags:
         - latest
         - ${DRONE_COMMIT}
-      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
-      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/php
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_php
       dockerfile: Dockerfile-php-base
       access_key:
         from_secret: aws_access_key
@@ -24,13 +27,16 @@ steps:
   - name: build nginx
     image: plugins/ecr
     settings:
-      mirror: https://proxy.docker.all.berlingskemedia.net
+      mirror:
+        from_secret: docker_proxy_mirror
       purge: true
       tags:
         - latest
         - ${DRONE_COMMIT}
-      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
-      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/nginx
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_nginx
       dockerfile: Dockerfile-nginx-base
       access_key:
         from_secret: aws_access_key
@@ -42,13 +48,16 @@ steps:
   - name: build tagger
     image: plugins/ecr
     settings:
-      mirror: https://proxy.docker.all.berlingskemedia.net
+      mirror:
+        from_secret: docker_proxy_mirror
       purge: true
       tags:
         - latest
         - ${DRONE_COMMIT}
-      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
-      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/drone-tagger
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-tagger
       dockerfile: drone-tag/Dockerfile-drone-tag
       access_key:
         from_secret: aws_access_key
@@ -61,13 +70,16 @@ steps:
   - name: build param checker
     image: plugins/ecr
     settings:
-      mirror: https://proxy.docker.all.berlingskemedia.net
+      mirror:
+        from_secret: docker_proxy_mirror
       purge: true
       tags:
         - latest
         - ${DRONE_COMMIT}
-      registry: 815296035528.dkr.ecr.eu-west-1.amazonaws.com
-      repo: 815296035528.dkr.ecr.eu-west-1.amazonaws.com/ci-production-images-ecr/drone-param-check
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-param-check
       dockerfile: drone-parameters-test/Dockerfile-drone-check-parameters
       access_key:
         from_secret: aws_access_key
@@ -103,3 +115,45 @@ get:
   path: "drone/ci-production-images"
   name: "aws_access_key_secret"
 
+---
+kind: "secret"
+name: "aws_access_key_secret"
+get:
+  path: "drone/ci-production-images"
+  name: "aws_access_key_secret"
+
+---
+
+kind: "secret"
+name: "ecr_registry"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_registry"
+---
+
+kind: "secret"
+name: "ecr_url_drone-param-check"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-param-check"
+---
+
+kind: "secret"
+name: "ecr_url_drone-tagger"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-tagger"
+---
+
+kind: "secret"
+name: "ecr_url_nginx"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_nginx"
+---
+
+kind: "secret"
+name: "ecr_url_php"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_php"
