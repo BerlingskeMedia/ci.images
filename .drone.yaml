@@ -80,7 +80,7 @@ steps:
         from_secret: ecr_registry
       repo:
         from_secret: ecr_url_drone-param-check
-      dockerfile: drone-parameters-test/Dockerfile-drone-check-parameters
+      dockerfile: drone-param-check/Dockerfile-drone-check-parameters
       access_key:
         from_secret: aws_access_key
       secret_key:
