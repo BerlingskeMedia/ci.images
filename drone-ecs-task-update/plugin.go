@@ -26,7 +26,7 @@ type Plugin struct {
 }
 
 func (p *Plugin) Exec() error {
-	fmt.Println("Drone ECS task definition updpdate")
+	fmt.Println("Drone ECS task definition updater")
 
 	if len(p.Cluster) == 0 || len(p.Service) == 0 {
 		log.Fatal("You need to provide both cluster and service parameters")
@@ -114,7 +114,6 @@ func (p *Plugin) Exec() error {
 	taskDefinition := *taskDefinitionOld.TaskDefinition
 
 	var newImage string
-	//var newContainers []*ecs.ContainerDefinition
 
 	for i, container := range taskDefinition.ContainerDefinitions {
 		if *container.Name == p.ContainerName {
@@ -137,9 +136,6 @@ func (p *Plugin) Exec() error {
 		}
 	}
 
-	fmt.Println("TDO: " + *service.Services[0].TaskDefinition)
-	fmt.Println("TDOT: " + fmt.Sprint(len(taskDefinitionOld.Tags)) + "\n" + taskDefinitionOld.String())
-
 	inputRegTagDef := &ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions:    taskDefinition.ContainerDefinitions,
 		Cpu:                     taskDefinition.Cpu,
@@ -159,8 +155,6 @@ func (p *Plugin) Exec() error {
 		TaskRoleArn:             taskDefinition.TaskRoleArn,
 		Volumes:                 taskDefinition.Volumes,
 	}
-
-	fmt.Println("TD: " + inputRegTagDef.String())
 
 	newTaskDefinition, err := svc.RegisterTaskDefinition(inputRegTagDef)
 	if err != nil {
