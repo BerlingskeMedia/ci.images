@@ -39,7 +39,7 @@ func (p *Plugin) Exec() error {
 	awsConfig.Region = aws.String(p.Region)
 
 	if len(p.Key) != 0 && len(p.Secret) != 0 {
-		fmt.Printf("Creating AWS session using AWS_ACCESS_KEY.")
+		fmt.Println("Creating AWS session using AWS_ACCESS_KEY.")
 		awsConfig.Credentials = credentials.NewStaticCredentials(p.Key, p.Secret, "")
 		// Must is a helper function to ensure the Session is valid and there was no error when calling a NewSession function
 		// In case of error it will call panic(err)
