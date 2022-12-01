@@ -67,7 +67,7 @@ func main() {
 			EnvVar: "PLUGIN_CLUSTER",
 		},
 		cli.BoolFlag{
-			Name:   "ignore-missing-container, i",
+			Name:   "ignore-missing-container",
 			Usage:  "Ignore missing container definition in task definition and continue",
 			EnvVar: "PLUGIN_IGNORE_MISSING_CONTAINER",
 		},
