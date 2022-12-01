@@ -23,6 +23,7 @@ type Plugin struct {
 	DockerImage   string
 	Tag           string
 	Cluster       string
+	IgnoreMissing bool
 }
 
 func (p *Plugin) Exec() error {
@@ -38,10 +39,14 @@ func (p *Plugin) Exec() error {
 	awsConfig.Region = aws.String(p.Region)
 
 	if len(p.Key) != 0 && len(p.Secret) != 0 {
+		fmt.Printf("Creating AWS session using AWS_ACCESS_KEY.")
 		awsConfig.Credentials = credentials.NewStaticCredentials(p.Key, p.Secret, "")
+		// Must is a helper function to ensure the Session is valid and there was no error when calling a NewSession function
+		// In case of error it will call panic(err)
 		sess = session.Must(session.NewSession(&awsConfig))
 	} else {
 		// If no Key or Secret try to use SSO
+		fmt.Println("No valid AWS access key and/or secret provided. Falling back to shared config...")
 		sess = session.Must(session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable}))
 	}
@@ -114,6 +119,7 @@ func (p *Plugin) Exec() error {
 	taskDefinition := *taskDefinitionOld.TaskDefinition
 
 	var newImage string
+	var found = false
 
 	for i, container := range taskDefinition.ContainerDefinitions {
 		if *container.Name == p.ContainerName {
@@ -133,6 +139,16 @@ func (p *Plugin) Exec() error {
 				newImage = newImage + ":" + p.Tag
 			}
 			*taskDefinition.ContainerDefinitions[i].Image = newImage
+			found = true
+		}
+	}
+
+	if !found {
+		fmt.Printf("No container named \"%s\" found in container definitions.\nService: %s\nTask definition: %s\n", p.ContainerName, *(service.Services[0].ServiceArn), *(taskDefinition.TaskDefinitionArn))
+		if p.IgnoreMissing {
+			log.Print("'ignore-missing-container' flag set. Continuing anyway...")
+		} else {
+			log.Fatal("Exiting.")
 		}
 	}
 

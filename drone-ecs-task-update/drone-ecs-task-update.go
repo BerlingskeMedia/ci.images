@@ -66,6 +66,11 @@ func main() {
 			Usage:  "AWS ECS cluster",
 			EnvVar: "PLUGIN_CLUSTER",
 		},
+		cli.BoolFlag{
+			Name:   "ignore-missing-container, i",
+			Usage:  "Ignore missing container definition in task definition and continue",
+			EnvVar: "PLUGIN_IGNORE_MISSING_CONTAINER",
+		},
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
@@ -83,6 +88,7 @@ func run(c *cli.Context) error {
 		DockerImage:   c.String("docker-image"),
 		Tag:           c.String("tag"),
 		Cluster:       c.String("cluster"),
+		IgnoreMissing: c.Bool("ignore-missing-container"),
 	}
 	return plugin.Exec()
 }
