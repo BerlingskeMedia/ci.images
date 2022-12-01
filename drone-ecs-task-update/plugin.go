@@ -146,7 +146,7 @@ func (p *Plugin) Exec() error {
 	if !found {
 		fmt.Printf("No container named \"%s\" found in container definitions.\nService: %s\nTask definition: %s\n", p.ContainerName, *(service.Services[0].ServiceArn), *(taskDefinition.TaskDefinitionArn))
 		if p.IgnoreMissing {
-			log.Print("'ignore-missing-container' flag set. Continuing anyway...")
+			log.Println("'ignore-missing-container' flag set. Continuing anyway...")
 		} else {
 			log.Fatal("Exiting.")
 		}
