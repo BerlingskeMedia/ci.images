@@ -48,7 +48,9 @@ func (p *Plugin) Exec() error {
 		// If no Key or Secret try to use SSO
 		fmt.Println("No valid AWS access key and/or secret provided. Falling back to shared config...")
 		sess = session.Must(session.NewSessionWithOptions(session.Options{
-			SharedConfigState: session.SharedConfigEnable}))
+			SharedConfigState: session.SharedConfigEnable,
+			Config:            awsConfig,
+		}))
 	}
 
 	var svc *ecs.ECS
