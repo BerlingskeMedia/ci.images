@@ -2,7 +2,7 @@ FROM alpine
 
 RUN apk add --no-cache \
         bash \
-        grep=3.7-r0 \
+        grep \
     && rm -rf /var/cache/apk/*
 
 COPY run.sh /
