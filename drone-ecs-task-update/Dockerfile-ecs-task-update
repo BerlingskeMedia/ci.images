@@ -1,0 +1,4 @@
+FROM plugins/base:multiarch
+
+ADD drone-ecs-task-update/bin/linux/amd64/drone_ecs_task_repo_update /bin/
+ENTRYPOINT ["/bin/drone_ecs_task_repo_update"]

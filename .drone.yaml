@@ -89,6 +89,43 @@ steps:
       context: drone-param-check
     depends_on: [clone]
 
+  - name: build ecs_task_update_amd64
+    image: golang:1.18
+    depends_on: [ clone ]
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+    commands:
+    - |
+      if test "${DRONE_TAG}" = ""; then
+        cd drone-ecs-task-update && go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/drone_ecs_task_repo_update
+      else
+        cd drone-ecs-task-update && go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/drone_ecs_task_repo_update
+      fi
+
+  - name: build ecs_task_update_amd64 container
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-ecs-task-update
+      dockerfile: drone-ecs-task-update/Dockerfile-ecs-task-update
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+      context: drone-ecs-task-update
+    depends_on: [clone]
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images
@@ -157,3 +194,10 @@ name: "ecr_url_php"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_php"
+---
+
+kind: "secret"
+name: "ecr_url_drone-ecs-task-update"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-ecs-task-update"
