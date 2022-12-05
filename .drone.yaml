@@ -124,7 +124,8 @@ steps:
         from_secret: aws_access_key_secret
       region: eu-west-1
       context: drone-ecs-task-update
-    depends_on: [clone]
+    depends_on:
+      - build ecs_task_update_amd64
 
 trigger:
   repo:
