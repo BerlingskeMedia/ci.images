@@ -1,0 +1,4 @@
+FROM alpine:latest
+
+ADD bin/linux/amd64/ecs_void /bin/
+ENTRYPOINT ["/bin/ecs_void"]

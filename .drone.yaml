@@ -127,6 +127,44 @@ steps:
     depends_on:
       - build ecs_task_update_amd64
 
+  - name: build ecs_void_amd64
+    image: golang:1.18
+    depends_on: [ clone ]
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+    commands:
+    - |
+      if test "${DRONE_TAG}" = ""; then
+        cd ecs-void && go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/ecs_void
+      else
+        cd ecs-void && go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/ecs_void
+      fi
+
+  - name: build ecs_void_amd64 container
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-ecs-task-update
+      dockerfile: ecs-void/Dockerfile-ecs-void
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+      context: ecs-void
+    depends_on:
+      - build ecs_void_amd64
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images
@@ -202,3 +240,11 @@ name: "ecr_url_drone-ecs-task-update"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-ecs-task-update"
+
+---
+
+kind: "secret"
+name: "ecr_url_ecs-void"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_ecs-void"
