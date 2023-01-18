@@ -154,7 +154,7 @@ steps:
       registry:
         from_secret: ecr_registry
       repo:
-        from_secret: ecr_url_drone-ecs-task-update
+        from_secret: ecr_url_ecs-void
       dockerfile: ecs-void/Dockerfile-ecs-void
       access_key:
         from_secret: aws_access_key
