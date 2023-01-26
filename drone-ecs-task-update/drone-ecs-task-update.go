@@ -71,6 +71,11 @@ func main() {
 			Usage:  "Ignore missing container definition in task definition and continue",
 			EnvVar: "PLUGIN_IGNORE_MISSING_CONTAINER",
 		},
+		cli.BoolFlag{
+			Name:   "force-new-deployment, f",
+			Usage:  "Force new deployment of the service if image was not changed",
+			EnvVar: "PLUGIN_FORCE_NEW_DEPLOYMENT",
+		},
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
@@ -79,16 +84,17 @@ func main() {
 
 func run(c *cli.Context) error {
 	plugin := Plugin{
-		Key:           c.String("access-key"),
-		Secret:        c.String("secret-key"),
-		UserRoleArn:   c.String("user-role-arn"),
-		Region:        c.String("region"),
-		Service:       c.String("service"),
-		ContainerName: c.String("container-name"),
-		DockerImage:   c.String("docker-image"),
-		Tag:           c.String("tag"),
-		Cluster:       c.String("cluster"),
-		IgnoreMissing: c.Bool("ignore-missing-container"),
+		Key:                c.String("access-key"),
+		Secret:             c.String("secret-key"),
+		UserRoleArn:        c.String("user-role-arn"),
+		Region:             c.String("region"),
+		Service:            c.String("service"),
+		ContainerName:      c.String("container-name"),
+		DockerImage:        c.String("docker-image"),
+		Tag:                c.String("tag"),
+		Cluster:            c.String("cluster"),
+		IgnoreMissing:      c.Bool("ignore-missing-container"),
+		ForceNewDeployment: c.Bool("force-new-deployment"),
 	}
 	return plugin.Exec()
 }
