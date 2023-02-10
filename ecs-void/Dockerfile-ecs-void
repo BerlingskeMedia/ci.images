@@ -1,4 +1,9 @@
 FROM alpine:latest
 
+RUN apk add --no-cache curl bash
+
+ADD isup.sh /bin/
+
 ADD bin/linux/amd64/ecs_void /bin/
+
 ENTRYPOINT ["/bin/ecs_void"]

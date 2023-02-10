@@ -90,7 +90,7 @@ steps:
     depends_on: [clone]
 
   - name: build ecs_task_update_amd64
-    image: golang:1.18
+    image: golang:alpine
     depends_on: [ clone ]
     environment:
       GOOS: linux
@@ -128,7 +128,7 @@ steps:
       - build ecs_task_update_amd64
 
   - name: build ecs_void_amd64
-    image: golang:1.18
+    image: golang:alpine
     depends_on: [ clone ]
     environment:
       GOOS: linux
