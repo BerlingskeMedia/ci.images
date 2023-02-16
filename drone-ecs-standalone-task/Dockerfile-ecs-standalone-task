@@ -1,0 +1,4 @@
+FROM plugins/base:multiarch
+
+ADD bin/linux/amd64/drone-ecs-standalone-task /bin/
+ENTRYPOINT ["/bin/drone-ecs-standalone-task"]
