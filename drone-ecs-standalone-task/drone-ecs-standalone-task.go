@@ -353,7 +353,7 @@ func run(c *cli.Context) error {
 		TaskKillOnTimeout:         c.BoolT("task-kill-on-timeout"),
 		Command:                   c.StringSlice("command"),
 		Privileged:                c.Bool("privileged"),
-		UseExistingTaskDefinition: c.Bool("use-existing-task-definition"),
+		UseExistingTaskDefinition: c.BoolT("use-existing-task-definition"),
 		ExistingTaskDefinitionArn: c.String("existing-task-definition-arn"),
 	}
 	return plugin.Exec()
