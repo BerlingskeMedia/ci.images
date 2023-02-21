@@ -165,6 +165,44 @@ steps:
     depends_on:
       - build ecs_void_amd64
 
+  - name: build ecs_standalone_task_amd64
+    image: golang:alpine
+    depends_on: [ clone ]
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+    commands:
+    - |
+      if test "${DRONE_TAG}" = ""; then
+        cd drone-ecs-standalone-task && go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/drone-ecs-standalone-task
+      else
+        cd drone-ecs-standalone-task && go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o bin/linux/amd64/drone-ecs-standalone-task
+      fi
+
+  - name: build ecs_standalone_task_amd64 container
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-ecs-standalone-task
+      dockerfile: drone-ecs-standalone-task/Dockerfile-ecs-standalone-task
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+      context: drone-ecs-standalone-task
+    depends_on:
+      - build ecs_standalone_task_amd64
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images
