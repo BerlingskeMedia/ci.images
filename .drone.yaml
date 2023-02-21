@@ -286,3 +286,10 @@ name: "ecr_url_ecs-void"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_ecs-void"
+
+---
+kind: "secret"
+name: "ecr_url_drone-ecs-standalone-task"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-ecs-standalone-task"
