@@ -477,11 +477,12 @@ func (p *Plugin) Exec() error {
 			return err
 		}
 		resp, err := p.ecsService.RegisterTaskDefinition(params)
-		taskDefinition = resp.TaskDefinition.TaskDefinitionArn
 		if err != nil {
 			log.Println("Error registering Task Definition")
 			return err
 		}
+		taskDefinition = resp.TaskDefinition.TaskDefinitionArn
+
 	}
 
 	/// New section
