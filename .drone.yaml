@@ -166,7 +166,7 @@ steps:
       - build ecs_void_amd64
 
   - name: build ecs_standalone_task_amd64
-    image: golang:alpine
+    image: golang:alpine3.17
     depends_on: [ clone ]
     environment:
       GOOS: linux
