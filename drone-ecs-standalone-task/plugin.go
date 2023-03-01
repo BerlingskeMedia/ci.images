@@ -540,8 +540,6 @@ func (p *Plugin) Exec() error {
 	if p.UseExistingTaskDefinition && p.ExistingTaskDefinitionArn != "" {
 		*taskDefinition = p.ExistingTaskDefinitionArn
 	} else {
-		// var params *ecs.RegisterTaskDefinitionInput
-		// var err error
 
 		params, err := p.createTaskDefinition()
 		if err != nil {
