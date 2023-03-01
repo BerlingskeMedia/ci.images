@@ -1,3 +1,6 @@
+# 1.3.1
+## Main changes:
+    - Added support for updating existing task definition
 # 1.3.0
 ## Main changes:
     - Added support for using existing task definition
