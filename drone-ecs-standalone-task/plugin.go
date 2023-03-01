@@ -223,36 +223,7 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 		p.Privileged = false
 	}
 
-	// definition = ecs.ContainerDefinition{
-	// 	Command: []*string{},
-
-	// 	DnsSearchDomains:      []*string{},
-	// 	DnsServers:            []*string{},
-	// 	DockerLabels:          map[string]*string{},
-	// 	DockerSecurityOptions: []*string{},
-	// 	EntryPoint:            []*string{},
-	// 	Environment:           []*ecs.KeyValuePair{},
-	// 	Secrets:               []*ecs.Secret{},
-	// 	Essential:             aws.Bool(true),
-	// 	ExtraHosts:            []*ecs.HostEntry{},
-
-	// 	Image:        aws.String(Image),
-	// 	Links:        []*string{},
-	// 	MountPoints:  []*ecs.MountPoint{},
-	// 	Name:         aws.String(p.ContainerName),
-	// 	PortMappings: []*ecs.PortMapping{},
-
-	// 	Ulimits: []*ecs.Ulimit{},
-	// 	//User: aws.String("String"),
-	// 	VolumesFrom: []*ecs.VolumeFrom{},
-	// 	//WorkingDirectory: aws.String("String"),
-	// 	Privileged: aws.Bool(p.Privileged),
-	// }
-
-	// if *definition.Privileged != p.Privileged {
-
 	definition.Privileged = aws.Bool(p.Privileged)
-	// }
 
 	if len(Image) > 1 {
 		definition.Image = aws.String(Image)
@@ -262,16 +233,12 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 		definition.Cpu = aws.Int64(p.CPU)
 	}
 
-	// if p.Memory == 0 && p.MemoryReservation == 0 {
-	// 	definition.MemoryReservation = aws.Int64(128)
-	// } else {
 	if p.Memory != 0 {
 		definition.Memory = aws.Int64(p.Memory)
 	}
 	if p.MemoryReservation != 0 {
 		definition.MemoryReservation = aws.Int64(p.MemoryReservation)
 	}
-	// }
 
 	// Volumes
 
@@ -499,10 +466,6 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 			ContainerDefinitions: []*ecs.ContainerDefinition{
 				definition,
 			},
-			// Family:      aws.String(p.Family),
-			// Volumes:     volumes,
-			// TaskRoleArn: aws.String(p.TaskRoleArn),
-			// NetworkMode: aws.String(p.NetworkMode),
 			Tags: oldTags,
 		}
 	}
@@ -564,57 +527,6 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 
 	return params, nil
 }
-
-// func (p *Plugin) updateTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error) {
-
-// 	taskDefinition := *existingTdOutput.TaskDefinition
-
-// 	if p.ContainerName != "" {
-// 		for i, container := range taskDefinition.ContainerDefinitions {
-// 			if *container.Name == p.ContainerName {
-// 				if p.CPU != 0 {
-// 					container.Cpu = aws.Int64(p.CPU)
-// 				}
-
-// 				if p.Memory != 0 && p.MemoryReservation != 0 {
-// 					if p.Memory != 0 {
-// 						container.Memory = aws.Int64(p.Memory)
-// 					}
-// 					if p.MemoryReservation != 0 {
-// 						container.MemoryReservation = aws.Int64(p.MemoryReservation)
-// 					}
-// 				}
-
-// 				for _, v := range p.EntryPoint {
-// 					var command = v
-// 					container.EntryPoint = append(container.EntryPoint, &command)
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	inputRegTagDef := &ecs.RegisterTaskDefinitionInput{
-// 		ContainerDefinitions:    taskDefinition.ContainerDefinitions,
-// 		Cpu:                     taskDefinition.Cpu,
-// 		EphemeralStorage:        taskDefinition.EphemeralStorage,
-// 		ExecutionRoleArn:        taskDefinition.ExecutionRoleArn,
-// 		Family:                  taskDefinition.Family,
-// 		InferenceAccelerators:   taskDefinition.InferenceAccelerators,
-// 		IpcMode:                 taskDefinition.IpcMode,
-// 		Memory:                  taskDefinition.Memory,
-// 		NetworkMode:             taskDefinition.NetworkMode,
-// 		PidMode:                 taskDefinition.PidMode,
-// 		PlacementConstraints:    taskDefinition.PlacementConstraints,
-// 		ProxyConfiguration:      taskDefinition.ProxyConfiguration,
-// 		RequiresCompatibilities: taskDefinition.RequiresCompatibilities,
-// 		RuntimePlatform:         taskDefinition.RuntimePlatform,
-// 		Tags:                    existingTdOutput.Tags,
-// 		TaskRoleArn:             taskDefinition.TaskRoleArn,
-// 		Volumes:                 taskDefinition.Volumes,
-// 	}
-
-// 	return inputRegTagDef, nil
-// }
 
 // Exec is main body of this plugin
 func (p *Plugin) Exec() error {
