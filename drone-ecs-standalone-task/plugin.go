@@ -206,10 +206,11 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 			if *container.Name == p.ContainerName {
 				definition = container
 				found = true
+				break
 			}
-			if !found {
-				log.Printf("Could not find container %s in task definition %s\n. Will register new task definition", p.ContainerName, p.ExistingTaskDefinitionArn)
-			}
+		}
+		if !found {
+			log.Printf("Could not find container %s in task definition %s\n. Will register new task definition", p.ContainerName, p.ExistingTaskDefinitionArn)
 		}
 
 	} else {
