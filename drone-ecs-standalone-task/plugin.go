@@ -539,7 +539,7 @@ func (p *Plugin) Exec() error {
 
 	// if p.ExistingTaskDefinitionArn != "" {
 	if p.UseExistingTaskDefinition && p.ExistingTaskDefinitionArn != "" {
-		*taskDefinition = p.ExistingTaskDefinitionArn
+		taskDefinition = &p.ExistingTaskDefinitionArn
 	} else {
 
 		params, err := p.createTaskDefinition()
