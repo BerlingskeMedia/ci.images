@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -162,58 +163,88 @@ func (p *Plugin) Connect() {
 
 func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error) {
 
-	Image := p.DockerImage + ":" + p.Tag
+	var definition *ecs.ContainerDefinition
+	var oldTaskDefinition *ecs.TaskDefinition
+	var oldTags []*ecs.Tag
+	var found = false
+
 	if len(p.ContainerName) == 0 {
 		p.ContainerName = p.Family + "-container"
 	}
+
+	if len(p.ExistingTaskDefinitionArn) != 0 {
+		inputTd := &ecs.DescribeTaskDefinitionInput{
+			TaskDefinition: aws.String(p.ExistingTaskDefinitionArn),
+			Include:        []*string{aws.String("TAGS")},
+		}
+
+		existingTdOutput, err := p.ecsService.DescribeTaskDefinition(inputTd)
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				switch aerr.Code() {
+				case ecs.ErrCodeServerException:
+					log.Println(ecs.ErrCodeServerException, aerr.Error())
+				case ecs.ErrCodeClientException:
+					log.Println(ecs.ErrCodeClientException, aerr.Error())
+				case ecs.ErrCodeInvalidParameterException:
+					log.Println(ecs.ErrCodeInvalidParameterException, aerr.Error())
+				case ecs.ErrCodeClusterNotFoundException:
+					log.Println(ecs.ErrCodeClusterNotFoundException, aerr.Error())
+				default:
+					log.Println(aerr.Error())
+				}
+			} else {
+				log.Println(err.Error())
+			}
+			return nil, err
+		}
+
+		oldTaskDefinition = existingTdOutput.TaskDefinition
+		oldTags = existingTdOutput.Tags
+
+		for _, container := range oldTaskDefinition.ContainerDefinitions {
+			if *container.Name == p.ContainerName {
+				definition = container
+				found = true
+				break
+			}
+		}
+		if !found {
+			log.Printf("Could not find container %s in task definition %s\n. Will register new task definition", p.ContainerName, p.ExistingTaskDefinitionArn)
+		}
+
+	} else {
+		definition.Name = aws.String(p.ContainerName)
+	}
+
+	Image := p.DockerImage + ":" + p.Tag
+
 	// Fargate doesn't support privileged mode
 	if p.Compatibilities == "FARGATE" {
 		p.Privileged = false
 	}
 
-	definition := ecs.ContainerDefinition{
-		Command: []*string{},
+	definition.Privileged = aws.Bool(p.Privileged)
 
-		DnsSearchDomains:      []*string{},
-		DnsServers:            []*string{},
-		DockerLabels:          map[string]*string{},
-		DockerSecurityOptions: []*string{},
-		EntryPoint:            []*string{},
-		Environment:           []*ecs.KeyValuePair{},
-		Secrets:               []*ecs.Secret{},
-		Essential:             aws.Bool(true),
-		ExtraHosts:            []*ecs.HostEntry{},
-
-		Image:        aws.String(Image),
-		Links:        []*string{},
-		MountPoints:  []*ecs.MountPoint{},
-		Name:         aws.String(p.ContainerName),
-		PortMappings: []*ecs.PortMapping{},
-
-		Ulimits: []*ecs.Ulimit{},
-		//User: aws.String("String"),
-		VolumesFrom: []*ecs.VolumeFrom{},
-		//WorkingDirectory: aws.String("String"),
-		Privileged: aws.Bool(p.Privileged),
+	if len(Image) > 1 {
+		definition.Image = aws.String(Image)
 	}
-	volumes := []*ecs.Volume{}
 
 	if p.CPU != 0 {
 		definition.Cpu = aws.Int64(p.CPU)
 	}
 
-	if p.Memory == 0 && p.MemoryReservation == 0 {
-		definition.MemoryReservation = aws.Int64(128)
-	} else {
-		if p.Memory != 0 {
-			definition.Memory = aws.Int64(p.Memory)
-		}
-		if p.MemoryReservation != 0 {
-			definition.MemoryReservation = aws.Int64(p.MemoryReservation)
-		}
+	if p.Memory != 0 {
+		definition.Memory = aws.Int64(p.Memory)
+	}
+	if p.MemoryReservation != 0 {
+		definition.MemoryReservation = aws.Int64(p.MemoryReservation)
 	}
 
 	// Volumes
+
+	volumes := []*ecs.Volume{}
+
 	for _, volume := range p.Volumes {
 		cleanedVolume := strings.Trim(volume, " ")
 		parts := strings.SplitN(cleanedVolume, " ", 2)
@@ -362,9 +393,12 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 	}
 
 	// EntryPoint
-	for _, v := range p.EntryPoint {
-		var command = v
-		definition.EntryPoint = append(definition.EntryPoint, &command)
+	if len(p.EntryPoint) > 0 {
+		definition.EntryPoint = nil
+		for _, v := range p.EntryPoint {
+			var command = v
+			definition.EntryPoint = append(definition.EntryPoint, &command)
+		}
 	}
 
 	// LogOptions
@@ -389,7 +423,7 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 	}
 
 	if len(p.NetworkMode) == 0 {
-		p.NetworkMode = "bridge"
+		p.NetworkMode = *oldTaskDefinition.NetworkMode
 	}
 
 	if len(p.HealthCheckCommand) != 0 {
@@ -405,14 +439,52 @@ func (p *Plugin) createTaskDefinition() (*ecs.RegisterTaskDefinitionInput, error
 		definition.HealthCheck = &healthcheck
 	}
 
-	params := &ecs.RegisterTaskDefinitionInput{
-		ContainerDefinitions: []*ecs.ContainerDefinition{
-			&definition,
-		},
-		Family:      aws.String(p.Family),
-		Volumes:     volumes,
-		TaskRoleArn: aws.String(p.TaskRoleArn),
-		NetworkMode: aws.String(p.NetworkMode),
+	var params *ecs.RegisterTaskDefinitionInput
+	if found {
+		params = &ecs.RegisterTaskDefinitionInput{
+			ContainerDefinitions:    oldTaskDefinition.ContainerDefinitions,
+			Cpu:                     oldTaskDefinition.Cpu,
+			EphemeralStorage:        oldTaskDefinition.EphemeralStorage,
+			ExecutionRoleArn:        oldTaskDefinition.ExecutionRoleArn,
+			Family:                  oldTaskDefinition.Family,
+			InferenceAccelerators:   oldTaskDefinition.InferenceAccelerators,
+			IpcMode:                 oldTaskDefinition.IpcMode,
+			Memory:                  oldTaskDefinition.Memory,
+			NetworkMode:             oldTaskDefinition.NetworkMode,
+			PidMode:                 oldTaskDefinition.PidMode,
+			PlacementConstraints:    oldTaskDefinition.PlacementConstraints,
+			ProxyConfiguration:      oldTaskDefinition.ProxyConfiguration,
+			RequiresCompatibilities: oldTaskDefinition.RequiresCompatibilities,
+			RuntimePlatform:         oldTaskDefinition.RuntimePlatform,
+			Tags:                    oldTags,
+			TaskRoleArn:             oldTaskDefinition.TaskRoleArn,
+			Volumes:                 oldTaskDefinition.Volumes,
+		}
+
+	} else {
+
+		params = &ecs.RegisterTaskDefinitionInput{
+			ContainerDefinitions: []*ecs.ContainerDefinition{
+				definition,
+			},
+			Tags: oldTags,
+		}
+	}
+
+	if len(volumes) > 0 {
+		params.Volumes = volumes
+	}
+
+	if len(p.TaskRoleArn) > 0 {
+		params.TaskRoleArn = aws.String(p.TaskRoleArn)
+	}
+
+	if p.NetworkMode != *params.NetworkMode {
+		params.NetworkMode = aws.String(p.NetworkMode)
+	}
+
+	if p.Family != *params.Family {
+		params.Family = aws.String(p.Family)
 	}
 
 	cleanedCompatibilities := strings.Trim(p.Compatibilities, " ")
@@ -465,25 +537,27 @@ func (p *Plugin) Exec() error {
 
 	var taskDefinition *string
 
-	if p.UseExistingTaskDefinition {
-		if p.ExistingTaskDefinitionArn == "" {
-			log.Fatalln("If you want to use existing task definition, proper ARN must be provided as 'existing-task-definition-arn'.")
-		}
-		taskDefinition = &p.ExistingTaskDefinitionArn
+	// if p.ExistingTaskDefinitionArn != "" {
+	if p.UseExistingTaskDefinition && p.ExistingTaskDefinitionArn != "" {
+		*taskDefinition = p.ExistingTaskDefinitionArn
 	} else {
+
 		params, err := p.createTaskDefinition()
 		if err != nil {
 			log.Println("Error creating Task Definition")
 			return err
 		}
+		log.Println(params)
+
 		resp, err := p.ecsService.RegisterTaskDefinition(params)
 		if err != nil {
 			log.Println("Error registering Task Definition")
 			return err
+		} else {
+			taskDefinition = resp.TaskDefinition.TaskDefinitionArn
 		}
-		taskDefinition = resp.TaskDefinition.TaskDefinitionArn
-
 	}
+	// }
 
 	/// New section
 
@@ -496,7 +570,7 @@ func (p *Plugin) Exec() error {
 		//Overrides:                TODO, or not - why override container if everything defined in this run (to consider)
 		//PlacementStrategy:        TODO
 		//Tags:                     TODO
-		TaskDefinition:       aws.String(*taskDefinition), // TODO: give an option to not create a new task definition on each run, use existing one instead (to consider)
+		TaskDefinition:       aws.String(*taskDefinition),
 		EnableExecuteCommand: aws.Bool(p.EnableExecuteCommand),
 	}
 

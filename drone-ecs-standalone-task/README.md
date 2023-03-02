@@ -82,8 +82,8 @@ New parameters:
 * `task_kill_on_timeout` - When task reaches timeout - send kill signal to the containers. Deafult `true`
 * `command` - A list of strings to pass as `Command` to container.
 * `privileged` - Container will run in privileged mode (applicable only for EC2 launch type)
-* `use-existing-task-definition` - If set on `true` it tells the plugin to ignore task settings and try to use existing task definition from ECS. `existing-task-definition` must be defined. Default is `true`.
-* `existing-task-definition` - ARN of existing ECS task definition to be used to run standalone task.
+* `use-existing-task-definition` - If set on `true` it tells the plugin to ignore task settings and try to use existing task definition from ECS. `existing-task-definition` must be defined. If set on `false` `existing-task-definition` is defined plugin will try to create new revision of existing task definition using provided configuration or create new task definition if update fails. Default is `true`.
+* `existing-task-definition` - Existing ECS task definition to be used to run standalone task. Can be `family`, `family:revision`, or `ARN` (with or without revision)
 
 
 ### Example 1
