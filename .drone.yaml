@@ -67,6 +67,28 @@ steps:
       context: drone-tag
     depends_on: [clone]
 
+  - name: build ecr tag update
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-tag-update
+      dockerfile: drone-ecr-tag-update/Dockerfile
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+      context: drone-tag-update
+    depends_on: [clone]
+
   - name: build param checker
     image: plugins/ecr
     settings:
@@ -293,3 +315,9 @@ name: "ecr_url_drone-ecs-standalone-task"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-ecs-standalone-task"
+---
+kind: "secret"
+name: "ecr_url_drone-tag-update"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-tag-update"
