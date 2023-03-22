@@ -70,14 +70,6 @@ function createTempFile()
 
 _temp_logfile=$(createTempFile)
 
-# Check if prefix set when _s3_use_prefix_as_filename set on true
-if [[ $_s3_use_prefix_as_filename == "true" ]]; then
-  if [ -z "$_tag_prefix" ] && [ -z "$_tag_prefix_regex" ]; then
-    log error "While using s3_use_prefix_as_filename=true, you have to set at least one of: tag_prefix_regex or tag_prefix"
-    killMe 2
-  fi
-fi
-
 # Check if parameters given
 if [ -z "$_repo" ]; then
   log error "Got empty argument: repository"
@@ -155,26 +147,3 @@ fi
 
 log info Exiting
 rm $_temp_logfile
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
