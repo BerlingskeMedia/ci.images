@@ -86,7 +86,7 @@ steps:
       secret_key:
         from_secret: aws_access_key_secret
       region: eu-west-1
-      context: drone-tag-update
+      context: drone-ecr-tag-update
     depends_on: [clone]
 
   - name: build param checker
