@@ -45,6 +45,26 @@ steps:
       region: eu-west-1
     depends_on: [clone]
 
+  - name: build nginx parameterized
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - param
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_nginx
+      dockerfile: Dockerfile-nginx-param
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+    depends_on: [clone]
+
   - name: build tagger
     image: plugins/ecr
     settings:
