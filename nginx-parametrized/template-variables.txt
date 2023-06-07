@@ -1,0 +1,8 @@
+map $host $forward_host {
+  default "$FORWARD_HOST";
+}
+
+map $host $resolver_addr {
+  default "$RESOLVER_ADDR";
+}
+
