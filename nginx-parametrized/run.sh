@@ -17,6 +17,9 @@ server {
   location / {
       proxy_pass $_forward_host;
   }
+  location /release-version-nginx.txt {
+    root /usr/share/nginx/html;
+  }
 }
 EOF
 }
