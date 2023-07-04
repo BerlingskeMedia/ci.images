@@ -35,7 +35,7 @@ Use this plugin for deploying a docker container application to AWS EC2 Containe
 * `user_role_arn` - AWS user role. Optional. Switch to different role after initial authentication
 * `region` - AWS availability zone
 * `container_name` - Name of the container, defaults to ${family}-container
-* `cluster` - Name of the cluster. Optional. Default cluster is used if not specified
+* `cluster` - Name of the cluster.
 * `family` - Family name of the task definition to create or update with a new revision
 * `task_role_arn` - ECS task IAM role
 * `docker_image` - Container image to use, do not include the tag here
@@ -65,11 +65,11 @@ Use this plugin for deploying a docker container application to AWS EC2 Containe
 * `volumes` - Bind Mount Volumes, format is `name sourcePath` both values are strings. Note with FARGATE launch type, you only provide the name of the volume, not the `sourcePath`
 * `efs_volumes` - Define EFS volume, format: `name efs-id root-directory`. Current configuration doesn't support encryption in transit.
 * `placement_constraints` - Ecs task definition placement constraints. Specify an array of constraints as a single string. Note that "distinctInstance" type can only be specified during run task or in service. Not inside a task definition.
-* `healthcheck-command` - List representing the command that the container runs to determine if it is healthy. Must start with CMD to execute the command arguments directly, or CMD-SHELL to run the command with the container's default shell.
-* `healthcheck-interval` - The time period in seconds between each health check execution. You may specify between 5 and 300 seconds. Defaults to 30 seconds. Default: 30
-* `healthcheck-retries` - The number of times to retry a failed health check before the container is considered unhealthy. You may specify between 1 and 10 retries. Defaults to 3
-* `healthcheck-start-period` - The grace period within which to provide containers time to bootstrap before failed health checks count towards the maximum number of retries. You may specify between 0 and 300 seconds. The startPeriod is disabled by default.
-* `healthcheck-timeout` - The time period in seconds to wait for a health check to succeed before it is considered a failure. You may specify between 2 and 60 seconds. Defaults to 5 seconds
+* `healthcheck_command` - List representing the command that the container runs to determine if it is healthy. Must start with CMD to execute the command arguments directly, or CMD-SHELL to run the command with the container's default shell.
+* `healthcheck_interval` - The time period in seconds between each health check execution. You may specify between 5 and 300 seconds. Defaults to 30 seconds. Default: 30
+* `healthcheck_retries` - The number of times to retry a failed health check before the container is considered unhealthy. You may specify between 1 and 10 retries. Defaults to 3
+* `healthcheck_start_period` - The grace period within which to provide containers time to bootstrap before failed health checks count towards the maximum number of retries. You may specify between 0 and 300 seconds. The startPeriod is disabled by default.
+* `healthcheck_timeout` - The time period in seconds to wait for a health check to succeed before it is considered a failure. You may specify between 2 and 60 seconds. Defaults to 5 seconds
 
 New parameters:
 * `capacity_providers` - Defines capacity providers. Format: list of `base(int) weight(int) name`; base - designates how many tasks, at a minimum, to run on the specified provider; weight - designates how many tasks will be assigned to this provider from among of all tasks cap in comparition to other providers; name - capacity provider's name
@@ -82,8 +82,8 @@ New parameters:
 * `task_kill_on_timeout` - When task reaches timeout - send kill signal to the containers. Deafult `true`
 * `command` - A list of strings to pass as `Command` to container.
 * `privileged` - Container will run in privileged mode (applicable only for EC2 launch type)
-* `use-existing-task-definition` - If set on `true` it tells the plugin to ignore task settings and try to use existing task definition from ECS. `existing-task-definition` must be defined. If set on `false` `existing-task-definition` is defined plugin will try to create new revision of existing task definition using provided configuration or create new task definition if update fails. Default is `true`.
-* `existing-task-definition` - Existing ECS task definition to be used to run standalone task. Can be `family`, `family:revision`, or `ARN` (with or without revision)
+* `use_existing_task_definition` - If set on `true` it tells the plugin to ignore task settings and try to use existing task definition from ECS. `existing_task_definition` must be defined. If set on `false` `existing_task_definition_arn` is defined plugin will try to create new revision of existing task definition using provided configuration or create new task definition if update fails. Default is `true`.
+* `existing_task_definition_arn` - Existing ECS task definition to be used to run standalone task. Can be `family`, `family:revision`, or `ARN` (with or without revision)
 
 
 ### Example 1
@@ -158,8 +158,8 @@ steps:
       ignore_execution_fail: false
       task_timeout: 300
       task_kill_on_timeout: true
-      use-existing-task-definition: true
-      existing-task-definition: arn:aws:ecs:eu-west-1:123456789012:task-definition/TaskDefinitionFamily:1
+      use_existing_task_definition: true
+      existing_task_definition_arn: arn:aws:ecs:eu-west-1:123456789012:task-definition/TaskDefinitionFamily:1
     # declaring the environment is necessary to get secret_environment_variables to work  
     environment:
       MY_SANDBOX_SECRET:
