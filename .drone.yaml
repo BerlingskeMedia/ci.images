@@ -245,6 +245,33 @@ steps:
     depends_on:
       - build ecs_standalone_task_amd64
 
+ - name: build caddy container
+    image: plugins/ecr
+    settings:
+      dockerfile: caddy/Dockerfile
+      context: caddy
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      build_args:
+        - BASE_IMAGE_TAG=2.4.5
+        - CI_COMMIT_SHA=${CI_COMMIT_SHA}
+        - CI_BUILD_NUMBER=${DRONE_BUILD_NUMBER}
+      mirror:
+        from_secret: docker_proxy_mirror
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_drone-ecs-standalone-task
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+    depends_on:
+      - build ecs_standalone_task_amd64
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images

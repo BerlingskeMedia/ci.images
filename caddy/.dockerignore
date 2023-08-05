@@ -1,0 +1,8 @@
+.dockerignore
+.gitignore
+**/.git
+**/.DS_Store
+Dockerfile
+**/*.md
+.env
+.drone.yml
