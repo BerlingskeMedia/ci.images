@@ -367,3 +367,10 @@ name: "ecr_url_drone-tag-update"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-tag-update"
+
+---
+kind: "secret"
+name: "ecr_url_caddy"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_caddy"
