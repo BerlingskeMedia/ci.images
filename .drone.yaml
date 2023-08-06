@@ -223,7 +223,7 @@ steps:
       fi
 
   - name: build ecs_standalone_task_amd64 container
-    imadate -u +"%Y-%m-%dT%H:%M:%SZ"ge: plugins/ecr
+    image: plugins/ecr
     settings:
       mirror:
         from_secret: docker_proxy_mirror
@@ -367,7 +367,6 @@ name: "ecr_url_drone-tag-update"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-tag-update"
-
 ---
 kind: "secret"
 name: "ecr_url_caddy"
