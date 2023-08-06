@@ -223,7 +223,7 @@ steps:
       fi
 
   - name: build ecs_standalone_task_amd64 container
-    image: plugins/ecr
+    imadate -u +"%Y-%m-%dT%H:%M:%SZ"ge: plugins/ecr
     settings:
       mirror:
         from_secret: docker_proxy_mirror
@@ -258,19 +258,16 @@ steps:
         - BASE_IMAGE_TAG=2.4.5
         - CI_COMMIT_SHA=${CI_COMMIT_SHA}
         - CI_BUILD_NUMBER=${DRONE_BUILD_NUMBER}
-      mirror:
+    mirror:
         from_secret: docker_proxy_mirror
       registry:
         from_secret: ecr_registry
-      repo:
-        from_secret: ecr_url_drone-ecs-standalone-task
       access_key:
         from_secret: aws_access_key
       secret_key:
         from_secret: aws_access_key_secret
       region: eu-west-1
-    depends_on:
-      - build ecs_standalone_task_amd64
+    depends_on: [clone]    
 
 trigger:
   repo:
