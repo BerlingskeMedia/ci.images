@@ -245,6 +245,32 @@ steps:
     depends_on:
       - build ecs_standalone_task_amd64
 
+  - name: build caddy container
+    image: plugins/ecr
+    settings:
+      dockerfile: caddy/Dockerfile
+      context: caddy
+      depends_on: [clone]
+      repo:
+        from_secret: ecr_url_caddy
+      mirror:
+        from_secret: docker_proxy_mirror
+        purge: true
+        tags:
+          - latest
+          - ${DRONE_COMMIT}
+        build_args:
+          - BASE_IMAGE_TAG=2.4.5
+          - CI_COMMIT_SHA=${CI_COMMIT_SHA}
+          - CI_BUILD_NUMBER=${DRONE_BUILD_NUMBER}
+        registry:
+          from_secret: ecr_registry
+        access_key:
+          from_secret: aws_access_key
+        secret_key:
+          from_secret: aws_access_key_secret
+        region: eu-west-1
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images
@@ -254,8 +280,8 @@ trigger:
       - cron
     exclude:
       - pull_request
-  branch:
-    - master
+  #branch:
+  #  - master
 
 ---
 kind: "secret"
@@ -341,3 +367,9 @@ name: "ecr_url_drone-tag-update"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-tag-update"
+---
+kind: "secret"
+name: "ecr_url_caddy"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_caddy"
