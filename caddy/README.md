@@ -1,6 +1,7 @@
 # caddy
 
-HTTP/1-2-3 web server with automatic HTTPS, including [s3 driver](https://github.com/ss098/certmagic-s3) for cert storage
+HTTP/1-2-3 web server with automatic HTTPS, including [s3 driver](https://github.com/ss098/certmagic-s3) for cert storage.
+Used by: https://github.com/BerlingskeMedia/puppet/blob/master/modules/bm_redirectservice
 
 
 ## Example:
