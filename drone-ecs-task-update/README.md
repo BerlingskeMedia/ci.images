@@ -26,7 +26,7 @@ Note: I the plugin detects that provided `docker-image` AND `tag` are the same t
 
 Usage to update the `container-name` container image and/or tag in task definition of ECS service `some-ecs-service` running inside `come-ecs-cluster` cluster, 
 ```yaml
-- image: drone-ecs-task-update
+- image: <account_id>.dkr.ecr.<region>.amazonaws.com/ci-production-images-ecr/drone-ecs-task-update
   name: update-container
   settings:
     access_key:
@@ -35,7 +35,7 @@ Usage to update the `container-name` container image and/or tag in task definiti
       from_secret: aws_secret
     cluster: some-ecs-cluster
     service: some-ecs-service
-    container-name: nginx-container
+    container_name: nginx-container
     image: nginx
     tag: latest
     
@@ -52,5 +52,5 @@ Usage to force new deployment of `some-ecs-service` service running inside `come
       from_secret: aws_secret
     cluster: some-ecs-cluster
     service: some-ecs-service
-    force-new-deployment: true
+    force_new_deployment: true
 ```
