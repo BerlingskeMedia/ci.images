@@ -99,7 +99,7 @@ steps:
       registry:
         from_secret: ecr_registry
       repo:
-        from_secret: ecr_url_drone-tag-update
+        from_secret: ecr_url_drone-ecr-tag-update
       dockerfile: drone-ecr-tag-update/Dockerfile
       access_key:
         from_secret: aws_access_key
@@ -356,6 +356,13 @@ name: "ecr_url_drone-ecs-standalone-task"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-ecs-standalone-task"
+
+---
+kind: "secret"
+name: "ecr_url_drone-ecr-tag-update"
+get:
+  path: "drone/ci-production-images"
+  name: "ecr_url_drone-ecr-tag-update"
 
 ---
 kind: "secret"
