@@ -245,6 +245,27 @@ steps:
     depends_on:
       - build ecs_standalone_task_amd64
 
+  - name: build ecr_url_networking_tool container
+    image: plugins/ecr
+    settings:
+      mirror:
+        from_secret: docker_proxy_mirror
+      purge: true
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      registry:
+        from_secret: ecr_registry
+      repo:
+        from_secret: ecr_url_networking_tool
+      dockerfile: networking-tool/Dockerfile
+      access_key:
+        from_secret: aws_access_key
+      secret_key:
+        from_secret: aws_access_key_secret
+      region: eu-west-1
+      context: networking-tool
+
 trigger:
   repo:
     - BerlingskeMedia/ci.images
@@ -335,9 +356,10 @@ name: "ecr_url_drone-ecs-standalone-task"
 get:
   path: "drone/ci-production-images"
   name: "ecr_url_drone-ecs-standalone-task"
+
 ---
 kind: "secret"
-name: "ecr_url_drone-tag-update"
+name: "ecr_url_networking_tool"
 get:
   path: "drone/ci-production-images"
-  name: "ecr_url_drone-tag-update"
+  name: "ecr_url_networking_tool"
