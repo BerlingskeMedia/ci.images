@@ -1,5 +1,8 @@
 FROM ubuntu:latest
 
+# Avoid prompts with apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install networking tools
 RUN apt-get update && apt-get install -y \
     dnsutils \
@@ -7,4 +10,5 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# Keep the container running
+CMD ["tail", "-f", "/dev/null"]
