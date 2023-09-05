@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     dnsutils \
     iputils-ping \
     net-tools \
+    traceroute \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the container running
