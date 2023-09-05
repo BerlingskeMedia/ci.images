@@ -1,16 +1,14 @@
 FROM ubuntu:latest
 
-# Avoid prompts with apt-get
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install networking tools
 RUN apt-get update && apt-get install -y \
     dnsutils \
     iputils-ping \
     net-tools \
     traceroute \
+    iputils-tracepath \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the container running
-CMD ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
